@@ -35,10 +35,10 @@ O objetivo é facilitar o controle de manutenções, horários e status dos serv
    venv\Scripts\activate     # Windows
    ```
 
-3. **Instalar dependências**
+3. **Instalar django**
 
    ```bash
-   pip install -r requirements.txt
+   pip install django
    ```
 
 4. **Aplicar migrações**
