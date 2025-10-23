@@ -1,2 +1,2 @@
-from django.db import Livro, Autor, Cliente, Emprestimo, ItemEmprestimo
+from django.db import LAgendamento, Cliente, Servico, Veiculo
 

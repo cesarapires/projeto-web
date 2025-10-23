@@ -1,11 +1,9 @@
 from django.contrib import admin
 
-from .models import  Livro, Autor, Cliente, Emprestimo, ItemEmprestimo, Usuario
+from .models import  Servico, Veiculo, Cliente, Agendamento
 
-admin.site.register(Livro)
-admin.site.register(Autor)
+admin.site.register(Servico)
+admin.site.register(Veiculo)
 admin.site.register(Cliente)
-admin.site.register(Emprestimo)
-admin.site.register(ItemEmprestimo)
-admin.site.register(Usuario)
+admin.site.register(Agendamento)
 
