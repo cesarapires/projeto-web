@@ -1,6 +1,6 @@
 from django.db import models
 
-from .cliente import Agendamento
+from .agendamento import Agendamento
 
 from decimal import Decimal
 

@@ -1,5 +1,5 @@
 from django.db import models
-from .cliente import Veiculo
+from .veiculo import Veiculo
 from django.utils import timezone
 
 class Agendamento(models.Model):
