@@ -1,3 +1,2 @@
-from django.db import models
+from django.db import Livro, Autor, Cliente, Emprestimo, ItemEmprestimo
 
-# Create your models here.
