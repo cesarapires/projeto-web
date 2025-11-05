@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Excluir veículo{% endblock %}
+
+{% block content %}
+  <div class="card p-3" style="max-width:720px; margin:0 auto;">
+    <h3 class="mb-3">Excluir veículo</h3>
+    <p>Tem certeza que deseja excluir o veículo <strong>{{ veiculo.placa }}</strong>?</p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Confirmar exclusão</button>
+      <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+  </div>
+{% endblock %}
