@@ -6,9 +6,11 @@ class Veiculo(models.Model):
     cliente = models.ForeignKey(
         Cliente, on_delete=models.CASCADE, related_name="veiculos"
     )
-    placa = models.CharField("placa", max_length=12)
+    placa = models.CharField("placa", max_length=12, unique=True)
     modelo = models.CharField("modelo", max_length=100, blank=True, null=True)
-    ano = models.PositiveIntegerField("ano", blank=True, null=True)
+    marca = models.CharField(max_length=50, blank=True, null=True)
+    ano = models.PositiveIntegerField(blank=True, null=True)
+    km_atual = models.PositiveIntegerField(blank=True, null=True)
 
     data_criacao = models.DateTimeField("data de criação", auto_now_add=True)
     atualizado_em = models.DateTimeField("atualizado em", auto_now=True)
