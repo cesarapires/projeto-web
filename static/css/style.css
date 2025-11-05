@@ -1,0 +1,32 @@
+/* Shared styles for login/register pages */
+:root{
+  --panel-bg: #0d6efd; /* bootstrap primary */
+  --panel-text: #ffffff;
+  --accent-success: #198754;
+}
+
+body{
+  background: #f4f6f8;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+.card.login-card, .card-register, .card{
+  border: none;
+  border-radius: 12px;
+}
+
+.panel-left{
+  background: linear-gradient(180deg, rgba(13,110,253,1) 0%, rgba(13,110,253,0.92) 100%);
+  color: var(--panel-text);
+}
+
+.panel-left h4{ margin-bottom: 0.25rem; }
+.panel-left p{ margin-bottom: 0; }
+
+.form-link { text-decoration: none; }
+
+/* Responsive tweaks */
+@media (max-width: 767px){
+  .panel-left{ display:none; }
+  .card{ border-radius: 8px; }
+}
