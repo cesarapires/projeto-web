@@ -1,9 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login as auth_login
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
+from django.contrib.auth.decorators import login_required
+
+from .forms import VeiculoForm
+from .models.veiculo import Veiculo
+from .models.cliente import Cliente
 
 
 def index(request):
@@ -61,8 +66,61 @@ def register(request):
             user.is_staff = False
             user.is_superuser = False
             user.save()
+            # create Cliente profile for this user
+            Cliente.objects.get_or_create(user=user)
             messages.success(request, 'Cadastro realizado com sucesso. Faça login.')
             return redirect(reverse('login'))
     else:
         form = UserCreationForm()
     return render(request, 'site_principal/register.html', {'form': form})
+
+
+@login_required(login_url=reverse_lazy('login'))
+def dashboard(request):
+    """Dashboard simples listando veículos do cliente."""
+    # ensure cliente exists
+    cliente, _ = Cliente.objects.get_or_create(user=request.user)
+    veiculos = cliente.veiculos.all()
+    return render(request, 'site_principal/dashboard.html', {'veiculos': veiculos})
+
+
+@login_required(login_url=reverse_lazy('login'))
+def veiculo_create(request):
+    cliente, _ = Cliente.objects.get_or_create(user=request.user)
+    if request.method == 'POST':
+        form = VeiculoForm(request.POST)
+        if form.is_valid():
+            veiculo = form.save(commit=False)
+            veiculo.cliente = cliente
+            veiculo.save()
+            messages.success(request, 'Veículo criado com sucesso.')
+            return redirect('dashboard')
+    else:
+        form = VeiculoForm()
+    return render(request, 'site_principal/veiculo_form.html', {'form': form, 'create': True})
+
+
+@login_required(login_url=reverse_lazy('login'))
+def veiculo_edit(request, pk):
+    cliente, _ = Cliente.objects.get_or_create(user=request.user)
+    veiculo = get_object_or_404(Veiculo, pk=pk, cliente=cliente)
+    if request.method == 'POST':
+        form = VeiculoForm(request.POST, instance=veiculo)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Veículo atualizado com sucesso.')
+            return redirect('dashboard')
+    else:
+        form = VeiculoForm(instance=veiculo)
+    return render(request, 'site_principal/veiculo_form.html', {'form': form, 'create': False, 'veiculo': veiculo})
+
+
+@login_required(login_url=reverse_lazy('login'))
+def veiculo_delete(request, pk):
+    cliente, _ = Cliente.objects.get_or_create(user=request.user)
+    veiculo = get_object_or_404(Veiculo, pk=pk, cliente=cliente)
+    if request.method == 'POST':
+        veiculo.delete()
+        messages.success(request, 'Veículo excluído com sucesso.')
+        return redirect('dashboard')
+    return render(request, 'site_principal/veiculo_confirm_delete.html', {'veiculo': veiculo})
