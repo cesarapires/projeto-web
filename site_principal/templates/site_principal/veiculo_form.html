@@ -8,71 +8,78 @@
     <form method="post">
       {% csrf_token %}
       {{ form.non_field_errors }}
-      <div class="mb-3">
-        {{ form.placa.label_tag }}
-        {{ form.placa }}
-        {% for err in form.placa.errors %}
-          <div class="invalid-feedback d-block">{{ err }}</div>
-        {% endfor %}
-      </div>
-      <div class="mb-3">
-        {{ form.modelo.label_tag }}
-        {{ form.modelo }}
-        {% for err in form.modelo.errors %}
-          <div class="invalid-feedback d-block">{{ err }}</div>
-        {% endfor %}
-      </div>
-      <div class="mb-3">
-        {{ form.marca.label_tag }}
-        {{ form.marca }}
-        {% for err in form.marca.errors %}
-          <div class="invalid-feedback d-block">{{ err }}</div>
-        {% endfor %}
-      </div>
-      <div class="mb-3">
-        {{ form.km_atual.label_tag }}
-        {{ form.km_atual }}
-        {% for err in form.km_atual.errors %}
-          <div class="invalid-feedback d-block">{{ err }}</div>
-        {% endfor %}
-      </div>
-      <div class="mb-3">
-        {{ form.renavam.label_tag }}
-        {{ form.renavam }}
-        {% for err in form.renavam.errors %}
-          <div class="invalid-feedback d-block">{{ err }}</div>
-        {% endfor %}
-      </div>
-      <div class="mb-3">
-        {{ form.chassi.label_tag }}
-        {{ form.chassi }}
-        {% for err in form.chassi.errors %}
-          <div class="invalid-feedback d-block">{{ err }}</div>
-        {% endfor %}
-      </div>
-      <div class="mb-3">
-        {{ form.cor.label_tag }}
-        {{ form.cor }}
-        {% for err in form.cor.errors %}
-          <div class="invalid-feedback d-block">{{ err }}</div>
-        {% endfor %}
-      </div>
-      <div class="mb-3">
-        {{ form.observacoes.label_tag }}
-        {{ form.observacoes }}
-        {% for err in form.observacoes.errors %}
-          <div class="invalid-feedback d-block">{{ err }}</div>
-        {% endfor %}
-      </div>
-      <div class="mb-3">
-        {{ form.ano.label_tag }}
-        {{ form.ano }}
-        {% for err in form.ano.errors %}
-          <div class="invalid-feedback d-block">{{ err }}</div>
-        {% endfor %}
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          {{ form.placa.label_tag }}
+          {{ form.placa }}
+          {% for err in form.placa.errors %}
+            <div class="invalid-feedback d-block">{{ err }}</div>
+          {% endfor %}
+        </div>
+        <div class="col-md-6">
+          {{ form.modelo.label_tag }}
+          {{ form.modelo }}
+          {% for err in form.modelo.errors %}
+            <div class="invalid-feedback d-block">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="col-md-6">
+          {{ form.marca.label_tag }}
+          {{ form.marca }}
+          {% for err in form.marca.errors %}
+            <div class="invalid-feedback d-block">{{ err }}</div>
+          {% endfor %}
+        </div>
+        <div class="col-md-6">
+          {{ form.km_atual.label_tag }}
+          {{ form.km_atual }}
+          {% for err in form.km_atual.errors %}
+            <div class="invalid-feedback d-block">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="col-md-6">
+          {{ form.renavam.label_tag }}
+          {{ form.renavam }}
+          {% for err in form.renavam.errors %}
+            <div class="invalid-feedback d-block">{{ err }}</div>
+          {% endfor %}
+        </div>
+        <div class="col-md-6">
+          {{ form.chassi.label_tag }}
+          {{ form.chassi }}
+          {% for err in form.chassi.errors %}
+            <div class="invalid-feedback d-block">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="col-md-6">
+          {{ form.cor.label_tag }}
+          {{ form.cor }}
+          {% for err in form.cor.errors %}
+            <div class="invalid-feedback d-block">{{ err }}</div>
+          {% endfor %}
+        </div>
+        <div class="col-md-6">
+          {{ form.ano.label_tag }}
+          {{ form.ano }}
+          {% for err in form.ano.errors %}
+            <div class="invalid-feedback d-block">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="col-12">
+          {{ form.observacoes.label_tag }}
+          {{ form.observacoes }}
+          {% for err in form.observacoes.errors %}
+            <div class="invalid-feedback d-block">{{ err }}</div>
+          {% endfor %}
+        </div>
       </div>
 
-      <div class="d-flex gap-2">
+      <div class="d-flex gap-2 mt-3">
         <button class="btn btn-success" type="submit">Salvar</button>
         <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancelar</a>
       </div>
