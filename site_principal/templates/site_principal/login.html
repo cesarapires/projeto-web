@@ -1,18 +1,16 @@
 <!doctype html>
 <html lang="pt-br">
+{% load static %}
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login</title>
     <!-- Bootstrap 5 CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-      body { background-color: #f8f9fa; }
-      .login-card { max-width: 420px; margin: 72px auto; }
-    </style>
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
   </head>
   <body>
-    <div class="container d-flex align-items-center justify-content-center" style="min-height:80vh;">
+  <div class="container d-flex align-items-center justify-content-center" style="min-height:80vh;">
       <div class="card login-card shadow-sm w-100" style="max-width:480px; border-radius:12px; overflow:hidden;">
         <div class="row g-0">
           <div class="col-md-5 bg-primary text-white p-4 d-flex flex-column justify-content-center align-items-center">
@@ -44,7 +42,7 @@
                 {% csrf_token %}
                 <div class="mb-3">
                   <label for="id_username" class="form-label">Usuário</label>
-                  <input type="text" name="username" autofocus required class="form-control{% if form.username.errors %} is-invalid{% endif %}" id="id_username" value="{{ form.username.value|default_if_none:'' }}">
+                  <input type="text" name="username" autofocus required class="form-control{% if form.username.errors %} is-invalid{% endif %}" id="id_username" value="{{ form.username.value|default_if_none:'' }}" placeholder="Seu usuário" aria-label="Usuário">
                   {% for err in form.username.errors %}
                     <div class="invalid-feedback">{{ err }}</div>
                   {% endfor %}
@@ -52,7 +50,7 @@
 
                 <div class="mb-3">
                   <label for="id_password" class="form-label">Senha</label>
-                  <input type="password" name="password" required class="form-control{% if form.password.errors %} is-invalid{% endif %}" id="id_password">
+                  <input type="password" name="password" required class="form-control{% if form.password.errors %} is-invalid{% endif %}" id="id_password" placeholder="Senha" aria-label="Senha">
                   {% for err in form.password.errors %}
                     <div class="invalid-feedback">{{ err }}</div>
                   {% endfor %}
