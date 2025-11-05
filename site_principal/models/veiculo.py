@@ -11,6 +11,10 @@ class Veiculo(models.Model):
     marca = models.CharField(max_length=50, blank=True, null=True)
     ano = models.PositiveIntegerField(blank=True, null=True)
     km_atual = models.PositiveIntegerField(blank=True, null=True)
+    renavam = models.CharField("renavam", max_length=32, blank=True, null=True, unique=True)
+    chassi = models.CharField("chassi", max_length=64, blank=True, null=True, unique=True)
+    cor = models.CharField("cor", max_length=30, blank=True, null=True)
+    observacoes = models.TextField("observações", blank=True, null=True)
 
     data_criacao = models.DateTimeField("data de criação", auto_now_add=True)
     atualizado_em = models.DateTimeField("atualizado em", auto_now=True)
