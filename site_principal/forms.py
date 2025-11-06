@@ -3,6 +3,7 @@ from django import forms
 from .models.veiculo import Veiculo
 from .models.ordem_servico import OrdemServico
 from .models.peca import Peca
+from .models.servico_executado import ServicoExecutado
 
 
 class VeiculoForm(forms.ModelForm):
@@ -59,4 +60,17 @@ class PecaForm(forms.ModelForm):
             'fabricante': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Fabricante'}),
             'preco_unitario': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': '0.00'}),
             'estoque_atual': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Quantidade disponível'}),
+        }
+
+
+class ServicoExecutadoForm(forms.ModelForm):
+    class Meta:
+        model = ServicoExecutado
+        fields = ['descricao', 'funcionario_id', 'valor', 'duracao_estimada_horas', 'data_execucao']
+        widgets = {
+            'descricao': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Descrição do serviço'}),
+            'funcionario_id': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'ID do funcionário (opcional)'}),
+            'valor': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': '0.00'}),
+            'duracao_estimada_horas': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': 'Horas estimadas'}),
+            'data_execucao': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
         }

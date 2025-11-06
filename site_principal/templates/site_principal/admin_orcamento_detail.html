@@ -25,4 +25,26 @@
     <dt class="col-sm-4">Observações</dt>
     <dd class="col-sm-8">{{ ordem.observacoes|linebreaksbr|default:"—" }}</dd>
   </dl>
+  
+    <hr />
+    <h6>Serviços executados</h6>
+    <p>
+      <a href="{% url 'servico_create' ordem.id %}" class="btn btn-sm btn-success">Adicionar serviço</a>
+    </p>
+    <div class="list-group">
+      {% for servico in ordem.servicos_executados.all %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <strong>{{ servico.descricao }}</strong>
+            <div class="text-muted small">R$ {{ servico.valor }} — {{ servico.data_execucao|default:"(sem data)" }}</div>
+          </div>
+          <div>
+            <a href="{% url 'servico_edit' ordem.id servico.id %}" class="btn btn-sm btn-primary">Editar</a>
+            <a href="{% url 'servico_delete' ordem.id servico.id %}" class="btn btn-sm btn-danger">Excluir</a>
+          </div>
+        </div>
+      {% empty %}
+        <div class="list-group-item">Nenhum serviço cadastrado para esta ordem.</div>
+      {% endfor %}
+    </div>
 </div>

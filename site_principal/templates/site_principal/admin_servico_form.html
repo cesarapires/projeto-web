@@ -1,0 +1,39 @@
+{% extends 'site_principal/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>{% if create %}Adicionar serviço{% else %}Editar serviço{% endif %} — Ordem #{{ ordem.id }}</h2>
+  <form method="post" class="form-compact">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="mb-3">
+      {{ form.descricao.label_tag }}
+      {{ form.descricao }}
+      {{ form.descricao.errors }}
+    </div>
+    <div class="mb-3">
+      {{ form.funcionario_id.label_tag }}
+      {{ form.funcionario_id }}
+      {{ form.funcionario_id.errors }}
+    </div>
+    <div class="mb-3">
+      {{ form.valor.label_tag }}
+      {{ form.valor }}
+      {{ form.valor.errors }}
+    </div>
+    <div class="mb-3">
+      {{ form.duracao_estimada_horas.label_tag }}
+      {{ form.duracao_estimada_horas }}
+      {{ form.duracao_estimada_horas.errors }}
+    </div>
+    <div class="mb-3">
+      {{ form.data_execucao.label_tag }}
+      {{ form.data_execucao }}
+      {{ form.data_execucao.errors }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <a href="{{ request.META.HTTP_REFERER|default:request.path }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

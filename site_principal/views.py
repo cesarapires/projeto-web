@@ -11,10 +11,14 @@ from functools import wraps
 from .forms import VeiculoForm
 from .forms import OrdemServicoForm, OrdemServicoCreateForm
 from .forms import PecaForm
+from .forms import ServicoExecutadoForm
 from .models.veiculo import Veiculo
 from .models.cliente import Cliente
 from .models.ordem_servico import OrdemServico
 from .models.peca import Peca
+from .models.servico_executado import ServicoExecutado
+from django.db import transaction
+from decimal import Decimal
 from django.views.decorators.http import require_POST
 from .models.ordem_servico import OrdemServico
 from django.views.decorators.http import require_POST
@@ -194,6 +198,69 @@ def peca_delete(request, pk):
         messages.success(request, 'Peça excluída com sucesso.')
         return redirect('peca_list')
     return render(request, 'site_principal/admin_peca_confirm_delete.html', {'peca': peca})
+
+
+@login_required(login_url=reverse_lazy('login'))
+@admin_required
+def servico_create(request, ordem_pk):
+    ordem = get_object_or_404(OrdemServico, pk=ordem_pk)
+    if request.method == 'POST':
+        form = ServicoExecutadoForm(request.POST)
+        if form.is_valid():
+            servico = form.save(commit=False)
+            servico.ordem_servico = ordem
+            with transaction.atomic():
+                servico.save()
+                ordem.valor_total = (ordem.valor_total or Decimal('0.00')) + (servico.valor or Decimal('0.00'))
+                ordem.save()
+            messages.success(request, 'Serviço adicionado com sucesso à ordem.')
+            return redirect('admin_orcamento_detail', pk=ordem.pk)
+    else:
+        form = ServicoExecutadoForm()
+    return render(request, 'site_principal/admin_servico_form.html', {'form': form, 'ordem': ordem, 'create': True})
+
+
+@login_required(login_url=reverse_lazy('login'))
+@admin_required
+def servico_edit(request, ordem_pk, pk):
+    ordem = get_object_or_404(OrdemServico, pk=ordem_pk)
+    servico = get_object_or_404(ServicoExecutado, pk=pk, ordem_servico=ordem)
+    if request.method == 'POST':
+        form = ServicoExecutadoForm(request.POST, instance=servico)
+        if form.is_valid():
+            old_val = servico.valor or Decimal('0.00')
+            servico_new = form.save(commit=False)
+            new_val = servico_new.valor or Decimal('0.00')
+            delta = new_val - old_val
+            with transaction.atomic():
+                servico_new.save()
+                ordem.valor_total = (ordem.valor_total or Decimal('0.00')) + delta
+                # Never allow negative total
+                if ordem.valor_total < Decimal('0.00'):
+                    ordem.valor_total = Decimal('0.00')
+                ordem.save()
+            messages.success(request, 'Serviço atualizado com sucesso.')
+            return redirect('admin_orcamento_detail', pk=ordem.pk)
+    else:
+        form = ServicoExecutadoForm(instance=servico)
+    return render(request, 'site_principal/admin_servico_form.html', {'form': form, 'ordem': ordem, 'create': False, 'servico': servico})
+
+
+@login_required(login_url=reverse_lazy('login'))
+@admin_required
+def servico_delete(request, ordem_pk, pk):
+    ordem = get_object_or_404(OrdemServico, pk=ordem_pk)
+    servico = get_object_or_404(ServicoExecutado, pk=pk, ordem_servico=ordem)
+    if request.method == 'POST':
+        with transaction.atomic():
+            ordem.valor_total = (ordem.valor_total or Decimal('0.00')) - (servico.valor or Decimal('0.00'))
+            if ordem.valor_total < Decimal('0.00'):
+                ordem.valor_total = Decimal('0.00')
+            ordem.save()
+            servico.delete()
+        messages.success(request, 'Serviço excluído com sucesso.')
+        return redirect('admin_orcamento_detail', pk=ordem.pk)
+    return render(request, 'site_principal/admin_servico_confirm_delete.html', {'servico': servico, 'ordem': ordem})
 
 def register(request):
     if request.method == 'POST':

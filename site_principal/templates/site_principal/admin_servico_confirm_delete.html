@@ -1,0 +1,13 @@
+{% extends 'site_principal/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Excluir serviço — Ordem #{{ ordem.id }}</h2>
+  <p>Tem certeza que deseja excluir o serviço "{{ servico.descricao }}" (R$ {{ servico.valor }})?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Sim, excluir</button>
+    <a href="{{ request.META.HTTP_REFERER|default:request.path }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}
