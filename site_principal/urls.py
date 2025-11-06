@@ -12,6 +12,7 @@ urlpatterns = [
     path('dashboard/orcamentos/aguardando/', views.orcamentos_aguardando, name='orcamentos_aguardando'),
     path('dashboard/orcamentos/outros/', views.orcamentos_outros, name='orcamentos_outros'),
     path('dashboard/orcamentos/<int:pk>/aprovar/', views.aprovar_orcamento, name='aprovar_orcamento'),
+    path('dashboard/orcamentos/<int:pk>/detail/', views.cliente_orcamento_detail, name='cliente_orcamento_detail'),
     path('logout/', views.logout_view, name='logout'),
     path('dashboard/admin/', views.admin_dashboard, name='admin_dashboard'),
     path('dashboard/admin/orcamentos/novo/', views.admin_orcamento_create, name='admin_orcamento_create'),

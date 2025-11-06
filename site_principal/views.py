@@ -217,7 +217,10 @@ def servico_create(request, ordem_pk):
                 ordem.valor_total = (ordem.valor_total or Decimal('0.00')) + (servico.valor or Decimal('0.00'))
                 ordem.save()
             messages.success(request, 'Serviço adicionado com sucesso à ordem.')
-            return redirect('admin_orcamento_detail', pk=ordem.pk)
+            # Redireciona para o admin_dashboard e solicita que o front abra o modal da ordem criada
+            from django.urls import reverse
+            dashboard_url = reverse('admin_dashboard')
+            return redirect(f"{dashboard_url}?open_order={ordem.pk}")
     else:
         form = ServicoExecutadoForm()
     return render(request, 'site_principal/admin_servico_form.html', {'form': form, 'ordem': ordem, 'create': True})
@@ -243,7 +246,9 @@ def servico_edit(request, ordem_pk, pk):
                     ordem.valor_total = Decimal('0.00')
                 ordem.save()
             messages.success(request, 'Serviço atualizado com sucesso.')
-            return redirect('admin_orcamento_detail', pk=ordem.pk)
+            from django.urls import reverse
+            dashboard_url = reverse('admin_dashboard')
+            return redirect(f"{dashboard_url}?open_order={ordem.pk}")
     else:
         form = ServicoExecutadoForm(instance=servico)
     return render(request, 'site_principal/admin_servico_form.html', {'form': form, 'ordem': ordem, 'create': False, 'servico': servico})
@@ -261,8 +266,10 @@ def servico_delete(request, ordem_pk, pk):
                 ordem.valor_total = Decimal('0.00')
             ordem.save()
             servico.delete()
-        messages.success(request, 'Serviço excluído com sucesso.')
-        return redirect('admin_orcamento_detail', pk=ordem.pk)
+    messages.success(request, 'Serviço excluído com sucesso.')
+    from django.urls import reverse
+    dashboard_url = reverse('admin_dashboard')
+    return redirect(f"{dashboard_url}?open_order={ordem.pk}")
     return render(request, 'site_principal/admin_servico_confirm_delete.html', {'servico': servico, 'ordem': ordem})
 
 def register(request):
@@ -293,6 +300,15 @@ def dashboard(request):
     ordens_aguardando = ordens.filter(status=OrdemServico.STATUS_AGUARDANDO_APROVACAO)
     ordens_outros = ordens.exclude(status=OrdemServico.STATUS_AGUARDANDO_APROVACAO)
     return render(request, 'site_principal/dashboard.html', {'veiculos': veiculos, 'ordens_aguardando': ordens_aguardando, 'ordens_outros': ordens_outros})
+
+
+@login_required(login_url=reverse_lazy('login'))
+@non_admin_required
+def cliente_orcamento_detail(request, pk):
+    """Partial usado no modal do cliente: mostra detalhes da ordem e serviços executados (somente leitura)."""
+    cliente, _ = Cliente.objects.get_or_create(user=request.user)
+    ordem = get_object_or_404(OrdemServico, pk=pk, veiculo__cliente=cliente)
+    return render(request, 'site_principal/cliente_orcamento_detail.html', {'ordem': ordem})
 
 
 

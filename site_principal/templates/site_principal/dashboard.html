@@ -41,8 +41,7 @@
               <small class="text-muted">Aberta em: {{ o.data_abertura }} • Valor: R$ {{ o.valor_total }}</small>
             </div>
             <div class="text-end">
-              <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#orcamentoModal"
-                data-id="{{ o.id }}" data-veiculo="{{ o.veiculo.placa }}" data-valor="{{ o.valor_total }}" data-km="{{ o.km_atendimento }}" data-obs="{{ o.observacoes }}">Ver detalhes</button>
+                <button class="btn btn-sm btn-outline-primary me-2 btn-view-orcamento" data-id="{{ o.id }}" data-bs-toggle="modal" data-bs-target="#orcamentoModal">Ver detalhes</button>
               <form method="post" action="{% url 'aprovar_orcamento' o.pk %}" style="display:inline-block;">
                 {% csrf_token %}
                 <button class="btn btn-sm btn-success" type="submit">Aprovar</button>
@@ -68,8 +67,7 @@
               <small class="text-muted">Aberta em: {{ o.data_abertura }} • Status: {{ o.get_status_display }} • Valor: R$ {{ o.valor_total }}</small>
             </div>
             <div class="text-end">
-              <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#orcamentoModal"
-                data-id="{{ o.id }}" data-veiculo="{{ o.veiculo.placa }}" data-valor="{{ o.valor_total }}" data-km="{{ o.km_atendimento }}" data-obs="{{ o.observacoes }}">Ver detalhes</button>
+              <button class="btn btn-sm btn-outline-primary btn-view-orcamento" data-id="{{ o.id }}" data-bs-toggle="modal" data-bs-target="#orcamentoModal">Ver detalhes</button>
             </div>
           </div>
         {% endfor %}
@@ -106,13 +104,21 @@
   <script>
     document.addEventListener('DOMContentLoaded', function(){
       var modal = document.getElementById('orcamentoModal');
+      var modalBody = modal.querySelector('.modal-body');
       modal.addEventListener('show.bs.modal', function (event) {
         var button = event.relatedTarget;
-        document.getElementById('m-id').textContent = button.getAttribute('data-id') || '';
-        document.getElementById('m-veiculo').textContent = button.getAttribute('data-veiculo') || '';
-        document.getElementById('m-valor').textContent = button.getAttribute('data-valor') || '';
-        document.getElementById('m-km').textContent = button.getAttribute('data-km') || '-';
-        document.getElementById('m-obs').textContent = button.getAttribute('data-obs') || '-';
+        var ordemId = button.getAttribute('data-id');
+        if (!ordemId) return;
+        modalBody.innerHTML = 'Carregando...';
+        const detailUrlTemplate = "{% url 'cliente_orcamento_detail' 0 %}"; // /dashboard/orcamentos/0/detail/
+        const detailUrl = detailUrlTemplate.replace('/0/', `/${ordemId}/`);
+        fetch(detailUrl, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+          .then(resp => {
+            if (!resp.ok) throw new Error('Erro ao carregar');
+            return resp.text();
+          })
+          .then(html => modalBody.innerHTML = html)
+          .catch(err => modalBody.innerHTML = '<div class="text-danger">Erro ao carregar detalhes.</div>');
       });
     });
   </script>

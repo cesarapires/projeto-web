@@ -1,0 +1,24 @@
+<div>
+  <p><strong>OS #</strong> {{ ordem.id }}</p>
+  <p><strong>Veículo:</strong> {{ ordem.veiculo.placa }} — {{ ordem.veiculo.modelo }} ({{ ordem.veiculo.marca }})</p>
+  <p><strong>Valor total:</strong> R$ {{ ordem.valor_total|default:"0.00" }}</p>
+  <p><strong>KM atendimento:</strong> {{ ordem.km_atendimento|default:"-" }}</p>
+  <p><strong>Observações:</strong></p>
+  <div class="small text-muted mb-3">{{ ordem.observacoes|linebreaksbr|default:"-" }}</div>
+
+  <hr />
+  <h6>Serviços executados</h6>
+  <div class="list-group">
+    {% for servico in ordem.servicos_executados.all %}
+      <div class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <div class="fw-semibold">{{ servico.descricao }}</div>
+          <div class="small text-muted">{{ servico.data_execucao|default:"(sem data)" }}</div>
+        </div>
+        <div class="text-end fw-bold">R$ {{ servico.valor }}</div>
+      </div>
+    {% empty %}
+      <div class="list-group-item text-muted">Nenhum serviço cadastrado para esta ordem.</div>
+    {% endfor %}
+  </div>
+</div>

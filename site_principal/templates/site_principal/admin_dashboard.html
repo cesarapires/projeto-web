@@ -249,6 +249,29 @@
             });
         });
       });
+
+      // Se houver ?open_order=<id> na querystring, abrir automaticamente o modal para essa ordem
+      const params = new URLSearchParams(window.location.search);
+      const openOrder = params.get('open_order');
+      if (openOrder) {
+        const detailUrlTemplate = "{% url 'admin_orcamento_detail' 0 %}"; // ex: /dashboard/admin/orcamentos/0/
+        const detailUrl = detailUrlTemplate.replace('/0/', `/${openOrder}/`);
+        content.innerHTML = 'Carregando...';
+        fetch(detailUrl, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+          .then(resp => resp.text())
+          .then(html => {
+            content.innerHTML = html;
+            modal.show();
+            // Remover o param para evitar reabrir se o usuário recarregar
+            params.delete('open_order');
+            const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+            window.history.replaceState({}, '', newUrl);
+          })
+          .catch(err => {
+            content.innerHTML = '<div class="text-danger">Erro ao carregar detalhes.</div>';
+            modal.show();
+          });
+      }
     });
   </script>
 {% endblock %}
