@@ -9,6 +9,10 @@ from django.contrib.auth.decorators import login_required
 from .forms import VeiculoForm
 from .models.veiculo import Veiculo
 from .models.cliente import Cliente
+from .models.ordem_servico import OrdemServico
+from django.views.decorators.http import require_POST
+from .models.ordem_servico import OrdemServico
+from django.views.decorators.http import require_POST
 
 
 def index(request):
@@ -81,7 +85,14 @@ def dashboard(request):
     # ensure cliente exists
     cliente, _ = Cliente.objects.get_or_create(user=request.user)
     veiculos = cliente.veiculos.all()
-    return render(request, 'site_principal/dashboard.html', {'veiculos': veiculos})
+    # ordens de serviço relacionadas aos veículos deste cliente
+    ordens = OrdemServico.objects.filter(veiculo__cliente=cliente)
+    ordens_aguardando = ordens.filter(status=OrdemServico.STATUS_AGUARDANDO_APROVACAO)
+    ordens_outros = ordens.exclude(status=OrdemServico.STATUS_AGUARDANDO_APROVACAO)
+    return render(request, 'site_principal/dashboard.html', {'veiculos': veiculos, 'ordens_aguardando': ordens_aguardando, 'ordens_outros': ordens_outros})
+
+
+
 
 
 @login_required(login_url=reverse_lazy('login'))
@@ -124,3 +135,34 @@ def veiculo_delete(request, pk):
         messages.success(request, 'Veículo excluído com sucesso.')
         return redirect('dashboard')
     return render(request, 'site_principal/veiculo_confirm_delete.html', {'veiculo': veiculo})
+
+
+@login_required(login_url=reverse_lazy('login'))
+def orcamentos_aguardando(request):
+    cliente, _ = Cliente.objects.get_or_create(user=request.user)
+    ordens = OrdemServico.objects.filter(veiculo__cliente=cliente, status=OrdemServico.STATUS_AGUARDANDO_APROVACAO)
+    return render(request, 'site_principal/orcamentos_list.html', {'ordens': ordens, 'title': 'Orçamentos aguardando aprovação', 'show_approve': True})
+
+
+@login_required(login_url=reverse_lazy('login'))
+def orcamentos_outros(request):
+    cliente, _ = Cliente.objects.get_or_create(user=request.user)
+    ordens = OrdemServico.objects.filter(veiculo__cliente=cliente).exclude(status=OrdemServico.STATUS_AGUARDANDO_APROVACAO)
+    return render(request, 'site_principal/orcamentos_list.html', {'ordens': ordens, 'title': 'Todos os orçamentos', 'show_approve': False})
+
+
+@login_required(login_url=reverse_lazy('login'))
+@require_POST
+def aprovar_orcamento(request, pk):
+    cliente, _ = Cliente.objects.get_or_create(user=request.user)
+    ordem = get_object_or_404(OrdemServico, pk=pk, veiculo__cliente=cliente)
+    # só permitir aprovar se estiver aguardando aprovação
+    if ordem.status == OrdemServico.STATUS_AGUARDANDO_APROVACAO:
+        ordem.status = OrdemServico.STATUS_EM_ANDAMENTO
+        ordem.save()
+        messages.success(request, f'Orçamento #{ordem.id} aprovado com sucesso.')
+    else:
+        messages.info(request, 'Ordem não está aguardando aprovação.')
+    # redireciona de volta à página anterior ou dashboard
+    next_url = request.META.get('HTTP_REFERER') or reverse('dashboard')
+    return redirect(next_url)
