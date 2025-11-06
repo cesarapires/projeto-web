@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.views import LoginView
 from django.contrib import messages
+from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login as auth_login
 from django.urls import reverse, reverse_lazy
@@ -17,6 +18,14 @@ from django.views.decorators.http import require_POST
 
 def index(request):
     return render(request, 'site_principal/index.html')
+
+
+def logout_view(request):
+    """Log out the current user and redirect to index. Allows GET for convenience."""
+    if request.user.is_authenticated:
+        auth_logout(request)
+        messages.info(request, 'Você saiu com sucesso.')
+    return redirect('index')
 
 
 class NonAdminLoginView(LoginView):
