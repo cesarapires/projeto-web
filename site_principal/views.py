@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from functools import wraps
 
 from .forms import VeiculoForm
-from .forms import OrdemServicoForm
+from .forms import OrdemServicoForm, OrdemServicoCreateForm
 from .models.veiculo import Veiculo
 from .models.cliente import Cliente
 from .models.ordem_servico import OrdemServico
@@ -102,16 +102,53 @@ def admin_dashboard(request):
 @admin_required
 def admin_orcamento_create(request):
     if request.method == 'POST':
-        form = OrdemServicoForm(request.POST)
+        form = OrdemServicoCreateForm(request.POST)
         if form.is_valid():
             ordem = form.save(commit=False)
-            ordem.status = OrdemServico.STATUS_EM_ANDAMENTO
+            ordem.status = OrdemServico.STATUS_AGUARDANDO_APROVACAO
             ordem.save()
             messages.success(request, f'Orçamento criado com sucesso (#{ordem.id}).')
             return redirect('admin_dashboard')
     else:
-        form = OrdemServicoForm()
+        form = OrdemServicoCreateForm()
     return render(request, 'site_principal/admin_orcamento_form.html', {'form': form})
+
+
+
+@login_required(login_url=reverse_lazy('login'))
+@admin_required
+def admin_orcamento_detail(request, pk):
+    """Retorna um partial HTML com os detalhes da ordem para abrir em modal."""
+    ordem = get_object_or_404(OrdemServico, pk=pk)
+    return render(request, 'site_principal/admin_orcamento_detail.html', {'ordem': ordem})
+
+
+
+@login_required(login_url=reverse_lazy('login'))
+@admin_required
+def admin_orcamento_edit(request, pk):
+    ordem = get_object_or_404(OrdemServico, pk=pk)
+    if request.method == 'POST':
+        form = OrdemServicoForm(request.POST, instance=ordem)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Orçamento #{ordem.id} atualizado com sucesso.')
+            return redirect('admin_dashboard')
+    else:
+        form = OrdemServicoForm(instance=ordem)
+    return render(request, 'site_principal/admin_orcamento_form.html', {'form': form, 'ordem': ordem, 'edit': True})
+
+
+
+@login_required(login_url=reverse_lazy('login'))
+@admin_required
+def admin_orcamento_delete(request, pk):
+    ordem = get_object_or_404(OrdemServico, pk=pk)
+    if request.method == 'POST':
+        ordem.delete()
+        messages.success(request, f'Orçamento #{pk} excluído com sucesso.')
+        return redirect('admin_dashboard')
+    return render(request, 'site_principal/admin_orcamento_confirm_delete.html', {'ordem': ordem})
 
 
 def register(request):

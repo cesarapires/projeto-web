@@ -24,7 +24,21 @@ class VeiculoForm(forms.ModelForm):
 class OrdemServicoForm(forms.ModelForm):
     class Meta:
         model = OrdemServico
-        # não expomos o status aqui: será definido pelo backend como "aguardando aprovação"
+        # Form usado para edição/uso administrativo — inclui status
+        fields = ['veiculo', 'km_atendimento', 'observacoes', 'valor_total', 'status']
+        widgets = {
+            'veiculo': forms.Select(attrs={'class': 'form-select'}),
+            'km_atendimento': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Quilometragem atendida (opcional)'}),
+            'observacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Observações do orçamento'}),
+            'valor_total': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': 'Valor total'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+
+class OrdemServicoCreateForm(forms.ModelForm):
+    class Meta:
+        model = OrdemServico
+        # usado para criação via admin_dashboard — não expõe status ao criar
         fields = ['veiculo', 'km_atendimento', 'observacoes', 'valor_total']
         widgets = {
             'veiculo': forms.Select(attrs={'class': 'form-select'}),

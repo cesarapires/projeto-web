@@ -1,15 +1,18 @@
 {% extends 'base.html' %}
 
-{% block title %}Novo Orçamento{% endblock %}
+{% block title %}{% if edit %}Editar Orçamento{% else %}Novo Orçamento{% endif %}{% endblock %}
 
 {% block content %}
   <div class="row justify-content-center">
     <div class="col-md-8">
-      <h2>Novo Orçamento de Serviço</h2>
-      <p>Preencha os dados do orçamento. O status será definido como <strong>Em Andamento</strong>.</p>
+      <h2>{% if edit %}Editar Orçamento{% else %}Novo Orçamento de Serviço{% endif %}</h2>
+      {% if not edit %}
+        <p>Preencha os dados do orçamento. O status será definido como <strong>Aguardando aprovação</strong>.</p>
+      {% endif %}
 
       <form method="post" class="form-compact">
         {% csrf_token %}
+        {{ form.non_field_errors }}
         <div class="mb-3">
           <label for="id_veiculo" class="form-label">Veículo</label>
           {{ form.veiculo }}
@@ -26,9 +29,15 @@
           <label for="id_observacoes" class="form-label">Observações</label>
           {{ form.observacoes }}
         </div>
+        {% if edit and form.status %}
+        <div class="mb-3">
+          <label for="id_status" class="form-label">Status</label>
+          {{ form.status }}
+        </div>
+        {% endif %}
 
         <div class="d-flex gap-2">
-          <button type="submit" class="btn btn-primary">Criar Orçamento</button>
+          <button type="submit" class="btn btn-primary">{% if edit %}Salvar alterações{% else %}Criar Orçamento{% endif %}</button>
           <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">Cancelar</a>
         </div>
       </form>

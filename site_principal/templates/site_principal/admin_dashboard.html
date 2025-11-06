@@ -33,6 +33,7 @@
                     <th>Cliente</th>
                     <th>Valor</th>
                     <th>Aberto em</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -43,6 +44,11 @@
                       <td>{{ o.veiculo.cliente.user.username }}</td>
                       <td>R$ {{ o.valor_total }}</td>
                       <td>{{ o.data_abertura|date:"SHORT_DATETIME_FORMAT" }}</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-secondary btn-view" data-url="{% url 'admin_orcamento_detail' o.id %}">Visualizar</button>
+                        <a href="{% url 'admin_orcamento_edit' o.id %}" class="btn btn-sm btn-outline-primary ms-1">Editar</a>
+                        <a href="{% url 'admin_orcamento_delete' o.id %}" class="btn btn-sm btn-outline-danger ms-1">Deletar</a>
+                      </td>
                     </tr>
                   {% endfor %}
                 </tbody>
@@ -74,6 +80,7 @@
                     <th>Cliente</th>
                     <th>Valor</th>
                     <th>Aberto em</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -84,6 +91,11 @@
                       <td>{{ o.veiculo.cliente.user.username }}</td>
                       <td>R$ {{ o.valor_total }}</td>
                       <td>{{ o.data_abertura|date:"SHORT_DATETIME_FORMAT" }}</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-secondary btn-view" data-url="{% url 'admin_orcamento_detail' o.id %}">Visualizar</button>
+                        <a href="{% url 'admin_orcamento_edit' o.id %}" class="btn btn-sm btn-outline-primary ms-1">Editar</a>
+                        <a href="{% url 'admin_orcamento_delete' o.id %}" class="btn btn-sm btn-outline-danger ms-1">Deletar</a>
+                      </td>
                     </tr>
                   {% endfor %}
                 </tbody>
@@ -127,11 +139,13 @@
                       <td>R$ {{ o.valor_total }}</td>
                       <td>{{ o.data_abertura|date:"SHORT_DATETIME_FORMAT" }}</td>
                       <td>
+                        <button class="btn btn-sm btn-outline-secondary btn-view" data-url="{% url 'admin_orcamento_detail' o.id %}">Visualizar</button>
                         <form method="post" action="{% url 'aprovar_orcamento' o.id %}" style="display:inline;">
                           {% csrf_token %}
-                          <button type="submit" class="btn btn-sm btn-success">Aprovar</button>
+                          <button type="submit" class="btn btn-sm btn-success ms-1">Aprovar</button>
                         </form>
-                        <a href="/admin/site_principal/ordemservico/{{ o.id }}/change/" class="btn btn-sm btn-outline-primary ms-1">Editar</a>
+                        <a href="{% url 'admin_orcamento_edit' o.id %}" class="btn btn-sm btn-outline-primary ms-1">Editar</a>
+                        <a href="{% url 'admin_orcamento_delete' o.id %}" class="btn btn-sm btn-outline-danger ms-1">Deletar</a>
                       </td>
                     </tr>
                   {% endfor %}
@@ -165,6 +179,7 @@
                     <th>Valor</th>
                     <th>Aberto em</th>
                     <th>Fechado em</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -176,6 +191,11 @@
                       <td>R$ {{ o.valor_total }}</td>
                       <td>{{ o.data_abertura|date:"SHORT_DATETIME_FORMAT" }}</td>
                       <td>{{ o.data_fechamento|date:"SHORT_DATETIME_FORMAT" }}</td>
+                      <td>
+                        <button class="btn btn-sm btn-outline-secondary btn-view" data-url="{% url 'admin_orcamento_detail' o.id %}">Visualizar</button>
+                        <a href="{% url 'admin_orcamento_edit' o.id %}" class="btn btn-sm btn-outline-primary ms-1">Editar</a>
+                        <a href="{% url 'admin_orcamento_delete' o.id %}" class="btn btn-sm btn-outline-danger ms-1">Deletar</a>
+                      </td>
                     </tr>
                   {% endfor %}
                 </tbody>
@@ -190,4 +210,48 @@
 
   </div>
   {# end accordion #}
+  <!-- Modal para visualizar detalhes da ordem -->
+  <div class="modal fade" id="orcamentoDetailModal" tabindex="-1" aria-labelledby="orcamentoDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="orcamentoDetailModalLabel">Orçamento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <!-- conteúdo será carregado via fetch -->
+          <div id="orcamentoDetailContent">Carregando...</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const modalEl = document.getElementById('orcamentoDetailModal');
+      const modal = new bootstrap.Modal(modalEl);
+      const content = document.getElementById('orcamentoDetailContent');
+
+      document.querySelectorAll('.btn-view').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+          const url = btn.getAttribute('data-url');
+          if (!url) return;
+          content.innerHTML = 'Carregando...';
+          fetch(url, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
+            .then(resp => resp.text())
+            .then(html => {
+              content.innerHTML = html;
+              modal.show();
+            })
+            .catch(err => {
+              content.innerHTML = '<div class="text-danger">Erro ao carregar detalhes.</div>';
+              modal.show();
+            });
+        });
+      });
+    });
+  </script>
 {% endblock %}

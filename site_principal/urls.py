@@ -15,4 +15,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('dashboard/admin/', views.admin_dashboard, name='admin_dashboard'),
     path('dashboard/admin/orcamentos/novo/', views.admin_orcamento_create, name='admin_orcamento_create'),
+    path('dashboard/admin/orcamentos/<int:pk>/', views.admin_orcamento_detail, name='admin_orcamento_detail'),
+    path('dashboard/admin/orcamentos/<int:pk>/editar/', views.admin_orcamento_edit, name='admin_orcamento_edit'),
+    path('dashboard/admin/orcamentos/<int:pk>/excluir/', views.admin_orcamento_delete, name='admin_orcamento_delete'),
 ]

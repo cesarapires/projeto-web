@@ -1,0 +1,28 @@
+<div class="container-fluid">
+  <h5>Orçamento #{{ ordem.id }}</h5>
+  <dl class="row">
+    <dt class="col-sm-4">Veículo</dt>
+    <dd class="col-sm-8">{{ ordem.veiculo.placa }} — {{ ordem.veiculo.modelo }} ({{ ordem.veiculo.marca }})</dd>
+
+    <dt class="col-sm-4">Cliente</dt>
+    <dd class="col-sm-8">{{ ordem.veiculo.cliente.user.get_full_name|default:ordem.veiculo.cliente.user.username }}</dd>
+
+    <dt class="col-sm-4">Status</dt>
+    <dd class="col-sm-8">{{ ordem.get_status_display }}</dd>
+
+    <dt class="col-sm-4">Valor total</dt>
+    <dd class="col-sm-8">R$ {{ ordem.valor_total }}</dd>
+
+    <dt class="col-sm-4">KM atendimento</dt>
+    <dd class="col-sm-8">{{ ordem.km_atendimento|default:"—" }}</dd>
+
+    <dt class="col-sm-4">Aberto em</dt>
+    <dd class="col-sm-8">{{ ordem.data_abertura|date:"SHORT_DATETIME_FORMAT" }}</dd>
+
+    <dt class="col-sm-4">Fechado em</dt>
+    <dd class="col-sm-8">{{ ordem.data_fechamento|date:"SHORT_DATETIME_FORMAT"|default:"—" }}</dd>
+
+    <dt class="col-sm-4">Observações</dt>
+    <dd class="col-sm-8">{{ ordem.observacoes|linebreaksbr|default:"—" }}</dd>
+  </dl>
+</div>
