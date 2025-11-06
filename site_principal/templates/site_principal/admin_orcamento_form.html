@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Novo Orçamento{% endblock %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <h2>Novo Orçamento de Serviço</h2>
+      <p>Preencha os dados do orçamento. O status será definido como <strong>Em Andamento</strong>.</p>
+
+      <form method="post" class="form-compact">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="id_veiculo" class="form-label">Veículo</label>
+          {{ form.veiculo }}
+        </div>
+        <div class="mb-3">
+          <label for="id_km_atendimento" class="form-label">KM atendimento</label>
+          {{ form.km_atendimento }}
+        </div>
+        <div class="mb-3">
+          <label for="id_valor_total" class="form-label">Valor total</label>
+          {{ form.valor_total }}
+        </div>
+        <div class="mb-3">
+          <label for="id_observacoes" class="form-label">Observações</label>
+          {{ form.observacoes }}
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary">Criar Orçamento</button>
+          <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
