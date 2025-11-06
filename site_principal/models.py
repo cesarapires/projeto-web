@@ -1,2 +1,2 @@
-from django.db import LAgendamento, Cliente, Servico, Veiculo
+from django.db import LAgendamento, Cliente, Servico, Veiculo, OrdemServico, Peca
 
