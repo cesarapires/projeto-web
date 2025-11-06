@@ -327,10 +327,10 @@ def servico_delete(request, ordem_pk, pk):
             servico.delete()
             # recalcula total após remoção
             ordem.recalculate_valor_total()
-    messages.success(request, 'Serviço excluído com sucesso.')
-    from django.urls import reverse
-    dashboard_url = reverse('admin_dashboard')
-    return redirect(f"{dashboard_url}?open_order={ordem.pk}")
+        messages.success(request, 'Serviço excluído com sucesso.')
+        from django.urls import reverse
+        dashboard_url = reverse('admin_dashboard')
+        return redirect(f"{dashboard_url}?open_order={ordem.pk}")
     return render(request, 'site_principal/admin_servico_confirm_delete.html', {'servico': servico, 'ordem': ordem})
 
 def register(request):
