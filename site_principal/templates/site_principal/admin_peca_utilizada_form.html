@@ -27,3 +27,43 @@
   </form>
 </div>
 {% endblock %}
+{% block extra_scripts %}
+  {# Insere os preços das peças como JSON seguro para uso em JS #}
+  {{ pecas_list|json_script:"pecas-data" }}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const pecasDataEl = document.getElementById('pecas-data');
+      let pecas = {};
+      if (pecasDataEl) {
+        try {
+          pecas = JSON.parse(pecasDataEl.textContent || '{}');
+        } catch (e) {
+          console.error('Erro ao parsear pecas-data', e);
+        }
+      }
+
+      // suportar múltiplos selects + forms na mesma página
+      const pecaSelects = Array.from(document.querySelectorAll('select[name="peca"]'));
+
+      function applyPrecoForSelect(selectEl) {
+        if (!selectEl) return;
+        const form = selectEl.closest('form');
+        const valorInput = form ? form.querySelector('input[name="valor_unitario"]') : document.querySelector('input[name="valor_unitario"]');
+        const selected = selectEl.value;
+        if (!selected || !valorInput) return;
+        const item = Array.isArray(pecas) ? pecas.find(p => String(p.id) === String(selected)) : null;
+        if (item) {
+          if (valorInput.value === '' || valorInput.value === '0' || valorInput.value === '0.00') {
+            valorInput.value = item.preco_unitario;
+          }
+        }
+      }
+
+      pecaSelects.forEach(sel => {
+        sel.addEventListener('change', () => applyPrecoForSelect(sel));
+        // aplicar no carregamento (útil em edição)
+        applyPrecoForSelect(sel);
+      });
+    });
+  </script>
+{% endblock %}

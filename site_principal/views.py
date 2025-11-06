@@ -250,7 +250,9 @@ def peca_utilizada_create(request, ordem_pk):
             return redirect(f"{dashboard_url}?open_order={ordem.pk}")
     else:
         form = PecaUtilizadaForm()
-    return render(request, 'site_principal/admin_peca_utilizada_form.html', {'form': form, 'ordem': ordem, 'create': True})
+    # passar lista de peças (id -> preco_unitario) para o template preencher o valor automaticamente
+    pecas_list = list(Peca.objects.values('id', 'preco_unitario'))
+    return render(request, 'site_principal/admin_peca_utilizada_form.html', {'form': form, 'ordem': ordem, 'create': True, 'pecas_list': pecas_list})
 
 
 @login_required(login_url=reverse_lazy('login'))
@@ -276,7 +278,8 @@ def peca_utilizada_edit(request, ordem_pk, pk):
             return redirect(f"{dashboard_url}?open_order={ordem.pk}")
     else:
         form = PecaUtilizadaForm(instance=peca_uso)
-    return render(request, 'site_principal/admin_peca_utilizada_form.html', {'form': form, 'ordem': ordem, 'create': False, 'peca_uso': peca_uso})
+    pecas_list = list(Peca.objects.values('id', 'preco_unitario'))
+    return render(request, 'site_principal/admin_peca_utilizada_form.html', {'form': form, 'ordem': ordem, 'create': False, 'peca_uso': peca_uso, 'pecas_list': pecas_list})
 
 
 @login_required(login_url=reverse_lazy('login'))
