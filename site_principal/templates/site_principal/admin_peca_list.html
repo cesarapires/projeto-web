@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Peças{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Gerenciar Peças</h2>
+    <a href="{% url 'peca_create' %}" class="btn btn-success">Nova Peça</a>
+  </div>
+
+  {% if pecas %}
+    <div class="table-responsive">
+      <table class="table table-sm table-striped">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nome</th>
+            <th>Código</th>
+            <th>Fabricante</th>
+            <th>Preço</th>
+            <th>Estoque</th>
+            <th>Criado em</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in pecas %}
+            <tr>
+              <td>{{ p.id }}</td>
+              <td>{{ p.nome }}</td>
+              <td>{{ p.codigo }}</td>
+              <td>{{ p.fabricante }}</td>
+              <td>R$ {{ p.preco_unitario }}</td>
+              <td>{{ p.estoque_atual }}</td>
+              <td>{{ p.criado_em|date:"SHORT_DATETIME_FORMAT" }}</td>
+              <td>
+                <a href="{% url 'peca_edit' p.id %}" class="btn btn-sm btn-outline-primary">Editar</a>
+                <a href="{% url 'peca_delete' p.id %}" class="btn btn-sm btn-outline-danger ms-1">Deletar</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p>Nenhuma peça cadastrada.</p>
+  {% endif %}
+{% endblock %}
