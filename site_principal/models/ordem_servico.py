@@ -1,6 +1,7 @@
 from django.db import models
 from .veiculo import Veiculo
 from decimal import Decimal
+from django.db.models import Sum
 
 
 class OrdemServico(models.Model):
@@ -42,3 +43,15 @@ class OrdemServico(models.Model):
 
     def __str__(self):
         return f"OS #{self.id} — {self.veiculo.placa} ({self.status})"
+
+    def recalculate_valor_total(self):
+        """Recalcula o valor_total como soma de serviços executados + peças utilizadas."""
+        total_servicos = self.servicos_executados.aggregate(total=Sum('valor'))['total'] or Decimal('0.00')
+        total_pecas = self.pecas_utilizadas.aggregate(total=Sum('valor_total'))['total'] or Decimal('0.00')
+        try:
+            new_total = (Decimal(total_servicos) or Decimal('0.00')) + (Decimal(total_pecas) or Decimal('0.00'))
+        except Exception:
+            new_total = Decimal('0.00')
+        # Salva apenas o campo valor_total para evitar sobrescrever timestamps desnecessariamente
+        self.valor_total = new_total
+        self.save(update_fields=['valor_total'])

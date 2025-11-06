@@ -216,8 +216,8 @@ def servico_create(request, ordem_pk):
             servico.ordem_servico = ordem
             with transaction.atomic():
                 servico.save()
-                ordem.valor_total = (ordem.valor_total or Decimal('0.00')) + (servico.valor or Decimal('0.00'))
-                ordem.save()
+                # recalcula o total a partir das linhas relacionadas para evitar erros de arredondamento
+                ordem.recalculate_valor_total()
             messages.success(request, 'Serviço adicionado com sucesso à ordem.')
             # Redireciona para o admin_dashboard e solicita que o front abra o modal da ordem criada
             from django.urls import reverse
@@ -242,8 +242,8 @@ def peca_utilizada_create(request, ordem_pk):
                 peca_uso.valor_unitario = peca_uso.peca.preco_unitario
             with transaction.atomic():
                 peca_uso.save()
-                ordem.valor_total = (ordem.valor_total or Decimal('0.00')) + (peca_uso.valor_total or Decimal('0.00'))
-                ordem.save()
+                # recalcula o total a partir dos serviços e peças relacionados
+                ordem.recalculate_valor_total()
             messages.success(request, 'Peça adicionada com sucesso à ordem.')
             from django.urls import reverse
             dashboard_url = reverse('admin_dashboard')
@@ -269,11 +269,7 @@ def peca_utilizada_edit(request, ordem_pk, pk):
             # compute new total via model.save
             with transaction.atomic():
                 peca_new.save()
-                delta = (peca_new.valor_total or Decimal('0.00')) - old_total
-                ordem.valor_total = (ordem.valor_total or Decimal('0.00')) + delta
-                if ordem.valor_total < Decimal('0.00'):
-                    ordem.valor_total = Decimal('0.00')
-                ordem.save()
+                ordem.recalculate_valor_total()
             messages.success(request, 'Peça atualizada com sucesso.')
             from django.urls import reverse
             dashboard_url = reverse('admin_dashboard')
@@ -290,11 +286,8 @@ def peca_utilizada_delete(request, ordem_pk, pk):
     peca_uso = get_object_or_404(PecaUtilizada, pk=pk, ordem_servico=ordem)
     if request.method == 'POST':
         with transaction.atomic():
-            ordem.valor_total = (ordem.valor_total or Decimal('0.00')) - (peca_uso.valor_total or Decimal('0.00'))
-            if ordem.valor_total < Decimal('0.00'):
-                ordem.valor_total = Decimal('0.00')
-            ordem.save()
             peca_uso.delete()
+            ordem.recalculate_valor_total()
         messages.success(request, 'Peça removida com sucesso.')
         from django.urls import reverse
         dashboard_url = reverse('admin_dashboard')
@@ -310,17 +303,11 @@ def servico_edit(request, ordem_pk, pk):
     if request.method == 'POST':
         form = ServicoExecutadoForm(request.POST, instance=servico)
         if form.is_valid():
-            old_val = servico.valor or Decimal('0.00')
             servico_new = form.save(commit=False)
-            new_val = servico_new.valor or Decimal('0.00')
-            delta = new_val - old_val
             with transaction.atomic():
                 servico_new.save()
-                ordem.valor_total = (ordem.valor_total or Decimal('0.00')) + delta
-                # Never allow negative total
-                if ordem.valor_total < Decimal('0.00'):
-                    ordem.valor_total = Decimal('0.00')
-                ordem.save()
+                # recalcula o total depois da alteração
+                ordem.recalculate_valor_total()
             messages.success(request, 'Serviço atualizado com sucesso.')
             from django.urls import reverse
             dashboard_url = reverse('admin_dashboard')
@@ -337,11 +324,9 @@ def servico_delete(request, ordem_pk, pk):
     servico = get_object_or_404(ServicoExecutado, pk=pk, ordem_servico=ordem)
     if request.method == 'POST':
         with transaction.atomic():
-            ordem.valor_total = (ordem.valor_total or Decimal('0.00')) - (servico.valor or Decimal('0.00'))
-            if ordem.valor_total < Decimal('0.00'):
-                ordem.valor_total = Decimal('0.00')
-            ordem.save()
             servico.delete()
+            # recalcula total após remoção
+            ordem.recalculate_valor_total()
     messages.success(request, 'Serviço excluído com sucesso.')
     from django.urls import reverse
     dashboard_url = reverse('admin_dashboard')
