@@ -30,3 +30,42 @@ body{
   .panel-left{ display:none; }
   .card{ border-radius: 8px; }
 }
+
+/* Estilos para detalhe da ordem (admin_orcamento_detail) */
+.orcamento-card { background: #ffffff; border-radius: 10px; }
+.orcamento-card .card-body { padding: 1.25rem; }
+.orcamento-card .total-badge {
+  background: linear-gradient(90deg, #0d6efd, #6610f2);
+  color: #fff;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  font-weight: 600;
+  display: inline-block;
+  min-width: 120px;
+  text-align: center;
+}
+.orcamento-card .observacoes { background: #f8f9fa; padding: 0.75rem; border-radius: 6px; }
+
+.serviços-list .service-item { display: flex; gap: 1rem; align-items: center; }
+.service-main { flex: 1 1 auto; }
+.service-actions { width: 200px; flex: 0 0 auto; }
+.service-item .fw-semibold { font-size: 0.98rem; }
+
+/* Small adjustments for buttons in lists */
+.service-actions .btn { padding: .275rem .5rem; font-size: .85rem; }
+
+/* Make totals and currency consistent */
+.total-value, .service-item .fw-bold { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue'; }
+
+@media (max-width: 576px){
+  .service-actions { width: auto; display: flex; gap: .5rem; }
+  .service-actions .mb-1 { margin-bottom: .25rem !important; }
+}
+
+/* Quando o detalhe for carregado dentro de um modal, reduzir padding/width para ficar compacto */
+.orcamento-card.modal-embedded { max-width: 680px; margin: 0 auto; }
+.orcamento-card.modal-embedded .card-body { padding: .75rem; }
+.orcamento-card.modal-embedded .total-badge { min-width: 90px; font-size: .95rem; padding: .35rem .6rem; }
+
+/* Standalone: maior espaçamento para parecer parte do app */
+.orcamento-card { margin-top: .5rem; }

@@ -1,50 +1,71 @@
 <div class="container-fluid">
-  <h5>Orçamento #{{ ordem.id }}</h5>
-  <dl class="row">
-    <dt class="col-sm-4">Veículo</dt>
-    <dd class="col-sm-8">{{ ordem.veiculo.placa }} — {{ ordem.veiculo.modelo }} ({{ ordem.veiculo.marca }})</dd>
-
-    <dt class="col-sm-4">Cliente</dt>
-    <dd class="col-sm-8">{{ ordem.veiculo.cliente.user.get_full_name|default:ordem.veiculo.cliente.user.username }}</dd>
-
-    <dt class="col-sm-4">Status</dt>
-    <dd class="col-sm-8">{{ ordem.get_status_display }}</dd>
-
-    <dt class="col-sm-4">Valor total</dt>
-    <dd class="col-sm-8">R$ {{ ordem.valor_total }}</dd>
-
-    <dt class="col-sm-4">KM atendimento</dt>
-    <dd class="col-sm-8">{{ ordem.km_atendimento|default:"—" }}</dd>
-
-    <dt class="col-sm-4">Aberto em</dt>
-    <dd class="col-sm-8">{{ ordem.data_abertura|date:"SHORT_DATETIME_FORMAT" }}</dd>
-
-    <dt class="col-sm-4">Fechado em</dt>
-    <dd class="col-sm-8">{{ ordem.data_fechamento|date:"SHORT_DATETIME_FORMAT"|default:"—" }}</dd>
-
-    <dt class="col-sm-4">Observações</dt>
-    <dd class="col-sm-8">{{ ordem.observacoes|linebreaksbr|default:"—" }}</dd>
-  </dl>
-  
-    <hr />
-    <h6>Serviços executados</h6>
-    <p>
-      <a href="{% url 'servico_create' ordem.id %}" class="btn btn-sm btn-success">Adicionar serviço</a>
-    </p>
-    <div class="list-group">
-      {% for servico in ordem.servicos_executados.all %}
-        <div class="list-group-item d-flex justify-content-between align-items-center">
-          <div>
-            <strong>{{ servico.descricao }}</strong>
-            <div class="text-muted small">R$ {{ servico.valor }} — {{ servico.data_execucao|default:"(sem data)" }}</div>
-          </div>
-          <div>
-            <a href="{% url 'servico_edit' ordem.id servico.id %}" class="btn btn-sm btn-primary">Editar</a>
-            <a href="{% url 'servico_delete' ordem.id servico.id %}" class="btn btn-sm btn-danger">Excluir</a>
-          </div>
+  {% if standalone %}
+  <div class="mb-3">
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-sm btn-outline-secondary">&larr; Voltar</a>
+  </div>
+  <div class="card orcamento-card shadow-sm">
+  {% else %}
+  <div class="card orcamento-card shadow-sm modal-embedded">
+  {% endif %}
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <h5 class="card-title mb-0">Orçamento #{{ ordem.id }}</h5>
+          <div class="text-muted small">Veículo: {{ ordem.veiculo.placa }} — {{ ordem.veiculo.modelo }} ({{ ordem.veiculo.marca }})</div>
+          <div class="text-muted small">Cliente: {{ ordem.veiculo.cliente.user.get_full_name|default:ordem.veiculo.cliente.user.username }}</div>
         </div>
-      {% empty %}
-        <div class="list-group-item">Nenhum serviço cadastrado para esta ordem.</div>
-      {% endfor %}
+        <div class="text-end">
+          <div class="total-badge">R$ <span class="total-value">{{ ordem.valor_total|default:"0.00" }}</span></div>
+          <div class="small text-muted">{{ ordem.get_status_display }}</div>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <label class="form-label small text-muted">KM atendimento</label>
+          <div>{{ ordem.km_atendimento|default:"—" }}</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small text-muted">Aberto em</label>
+          <div>{{ ordem.data_abertura|date:"SHORT_DATETIME_FORMAT" }}</div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small text-muted">Fechado em</label>
+          <div>{{ ordem.data_fechamento|date:"SHORT_DATETIME_FORMAT"|default:"—" }}</div>
+        </div>
+      </div>
+
+      {% if ordem.observacoes %}
+        <div class="mb-3">
+          <label class="form-label small text-muted">Observações</label>
+          <div class="observacoes">{{ ordem.observacoes|linebreaksbr }}</div>
+        </div>
+      {% endif %}
+
+      <hr />
+
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0">Serviços executados</h6>
+        <a href="{% url 'servico_create' ordem.id %}" class="btn btn-sm btn-success">Adicionar serviço</a>
+      </div>
+
+      <div class="list-group serviços-list">
+        {% for servico in ordem.servicos_executados.all %}
+          <div class="list-group-item service-item d-flex justify-content-between align-items-center">
+            <div class="service-main">
+              <div class="fw-semibold">{{ servico.descricao }}</div>
+              <div class="text-muted small">{{ servico.data_execucao|default:"(sem data)" }}</div>
+            </div>
+            <div class="service-actions text-end">
+              <div class="mb-1 fw-bold">R$ {{ servico.valor }}</div>
+              <a href="{% url 'servico_edit' ordem.id servico.id %}" class="btn btn-sm btn-outline-primary me-1">Editar</a>
+              <a href="{% url 'servico_delete' ordem.id servico.id %}" class="btn btn-sm btn-outline-danger">Excluir</a>
+            </div>
+          </div>
+        {% empty %}
+          <div class="list-group-item">Nenhum serviço cadastrado para esta ordem.</div>
+        {% endfor %}
+      </div>
     </div>
+  </div>
 </div>

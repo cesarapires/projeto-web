@@ -126,7 +126,10 @@ def admin_orcamento_create(request):
 def admin_orcamento_detail(request, pk):
     """Retorna um partial HTML com os detalhes da ordem para abrir em modal."""
     ordem = get_object_or_404(OrdemServico, pk=pk)
-    return render(request, 'site_principal/admin_orcamento_detail.html', {'ordem': ordem})
+    # Permite renderizar a versão completa passando ?full=1 na querystring
+    full = str(request.GET.get('full', '')).lower() in ('1', 'true', 'yes')
+    context = {'ordem': ordem, 'standalone': full}
+    return render(request, 'site_principal/admin_orcamento_detail.html', context)
 
 
 
