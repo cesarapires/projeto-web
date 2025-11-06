@@ -10,4 +10,184 @@
   <div class="mt-3">
     <a href="{% url 'admin_orcamento_create' %}" class="btn btn-success me-2">Novo Orçamento</a>
   </div>
+
+  <hr class="my-4">
+
+  <div class="accordion" id="ordensAccordion">
+    <!-- Aberta -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingAberta">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAberta" aria-expanded="true" aria-controls="collapseAberta">
+          Orçamentos Abertos ({{ ordens_abertas.count }})
+        </button>
+      </h2>
+      <div id="collapseAberta" class="accordion-collapse collapse show" aria-labelledby="headingAberta" data-bs-parent="#ordensAccordion">
+        <div class="accordion-body">
+          {% if ordens_abertas %}
+            <div class="table-responsive">
+              <table class="table table-sm table-striped">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Veículo</th>
+                    <th>Cliente</th>
+                    <th>Valor</th>
+                    <th>Aberto em</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for o in ordens_abertas %}
+                    <tr>
+                      <td>{{ o.id }}</td>
+                      <td>{{ o.veiculo.placa }} — {{ o.veiculo.modelo }}</td>
+                      <td>{{ o.veiculo.cliente.user.username }}</td>
+                      <td>R$ {{ o.valor_total }}</td>
+                      <td>{{ o.data_abertura|date:"SHORT_DATETIME_FORMAT" }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="mb-0">Nenhum orçamento aberto.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Em andamento -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingAndamento">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAndamento" aria-expanded="false" aria-controls="collapseAndamento">
+          Orçamentos em andamento ({{ ordens_andamento.count }})
+        </button>
+      </h2>
+      <div id="collapseAndamento" class="accordion-collapse collapse" aria-labelledby="headingAndamento" data-bs-parent="#ordensAccordion">
+        <div class="accordion-body">
+          {% if ordens_andamento %}
+            <div class="table-responsive">
+              <table class="table table-sm table-striped">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Veículo</th>
+                    <th>Cliente</th>
+                    <th>Valor</th>
+                    <th>Aberto em</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for o in ordens_andamento %}
+                    <tr>
+                      <td>{{ o.id }}</td>
+                      <td>{{ o.veiculo.placa }} — {{ o.veiculo.modelo }}</td>
+                      <td>{{ o.veiculo.cliente.user.username }}</td>
+                      <td>R$ {{ o.valor_total }}</td>
+                      <td>{{ o.data_abertura|date:"SHORT_DATETIME_FORMAT" }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="mb-0">Nenhum orçamento em andamento.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Aguardando aprovação -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingAguardando">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAguardando" aria-expanded="false" aria-controls="collapseAguardando">
+          Orçamentos aguardando aprovação ({{ ordens_aguardando.count }})
+        </button>
+      </h2>
+      <div id="collapseAguardando" class="accordion-collapse collapse" aria-labelledby="headingAguardando" data-bs-parent="#ordensAccordion">
+        <div class="accordion-body">
+          {% if ordens_aguardando %}
+            <div class="table-responsive">
+              <table class="table table-sm table-striped">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Veículo</th>
+                    <th>Cliente</th>
+                    <th>Valor</th>
+                    <th>Aberto em</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for o in ordens_aguardando %}
+                    <tr>
+                      <td>{{ o.id }}</td>
+                      <td>{{ o.veiculo.placa }} — {{ o.veiculo.modelo }}</td>
+                      <td>{{ o.veiculo.cliente.user.username }}</td>
+                      <td>R$ {{ o.valor_total }}</td>
+                      <td>{{ o.data_abertura|date:"SHORT_DATETIME_FORMAT" }}</td>
+                      <td>
+                        <form method="post" action="{% url 'aprovar_orcamento' o.id %}" style="display:inline;">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-success">Aprovar</button>
+                        </form>
+                        <a href="/admin/site_principal/ordemservico/{{ o.id }}/change/" class="btn btn-sm btn-outline-primary ms-1">Editar</a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="mb-0">Nenhum orçamento aguardando aprovação.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Finalizadas -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingFinalizadas">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFinalizadas" aria-expanded="false" aria-controls="collapseFinalizadas">
+          Orçamentos finalizados ({{ ordens_finalizadas.count }})
+        </button>
+      </h2>
+      <div id="collapseFinalizadas" class="accordion-collapse collapse" aria-labelledby="headingFinalizadas" data-bs-parent="#ordensAccordion">
+        <div class="accordion-body">
+          {% if ordens_finalizadas %}
+            <div class="table-responsive">
+              <table class="table table-sm table-striped">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Veículo</th>
+                    <th>Cliente</th>
+                    <th>Valor</th>
+                    <th>Aberto em</th>
+                    <th>Fechado em</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for o in ordens_finalizadas %}
+                    <tr>
+                      <td>{{ o.id }}</td>
+                      <td>{{ o.veiculo.placa }} — {{ o.veiculo.modelo }}</td>
+                      <td>{{ o.veiculo.cliente.user.username }}</td>
+                      <td>R$ {{ o.valor_total }}</td>
+                      <td>{{ o.data_abertura|date:"SHORT_DATETIME_FORMAT" }}</td>
+                      <td>{{ o.data_fechamento|date:"SHORT_DATETIME_FORMAT" }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="mb-0">Nenhum orçamento finalizado.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+  {# end accordion #}
 {% endblock %}

@@ -23,7 +23,6 @@ def index(request):
 
 
 def logout_view(request):
-    """Log out the current user and redirect to index. Allows GET for convenience."""
     if request.user.is_authenticated:
         auth_logout(request)
         messages.info(request, 'Você saiu com sucesso.')
@@ -32,11 +31,6 @@ def logout_view(request):
 
 
 class NonAdminLoginView(LoginView):
-    """Login view. Allow any user (admin or not) to log in here.
-
-    The dashboard and other protected endpoints are restricted to non-admin users
-    via the `non_admin_required` decorator.
-    """
     template_name = 'site_principal/login.html'
     redirect_authenticated_user = False
 
@@ -44,7 +38,6 @@ class NonAdminLoginView(LoginView):
         return self.request.GET.get('next') or '/'
     
     def dispatch(self, request, *args, **kwargs):
-        # If already authenticated, redirect based on role
         user = getattr(request, 'user', None)
         if user and user.is_authenticated:
             if getattr(user, 'is_staff', False) or getattr(user, 'is_superuser', False):
@@ -53,7 +46,6 @@ class NonAdminLoginView(LoginView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        # After successful authentication, route admins to admin dashboard
         user = form.get_user()
         auth_login(self.request, user)
         if getattr(user, 'is_staff', False) or getattr(user, 'is_superuser', False):
@@ -62,11 +54,6 @@ class NonAdminLoginView(LoginView):
 
 
 def non_admin_required(view_func):
-    """Decorator that allows only non-admin users (not staff/superuser).
-
-    If the user is not authenticated, the normal login_required decorator should
-    handle that first. If the user is admin, redirect to index with a message.
-    """
     @wraps(view_func)
     def _wrapped(request, *args, **kwargs):
         user = getattr(request, 'user', None)
@@ -75,14 +62,13 @@ def non_admin_required(view_func):
                 messages.error(request, 'Esta área é apenas para clientes (não administradores).')
                 return redirect('index')
             return view_func(request, *args, **kwargs)
-        # If anonymous, let login_required handle it (but fallback to login)
+
         return redirect('login')
 
     return _wrapped
 
 
 def admin_required(view_func):
-    """Decorator that allows only admin users (staff or superuser)."""
     @wraps(view_func)
     def _wrapped(request, *args, **kwargs):
         user = getattr(request, 'user', None)
@@ -97,18 +83,24 @@ def admin_required(view_func):
 @login_required(login_url=reverse_lazy('login'))
 @admin_required
 def admin_dashboard(request):
-    """Simple admin landing page for staff/superusers."""
-    return render(request, 'site_principal/admin_dashboard.html')
+    ordens_abertas = OrdemServico.objects.filter(status=OrdemServico.STATUS_ABERTA)
+    ordens_andamento = OrdemServico.objects.filter(status=OrdemServico.STATUS_EM_ANDAMENTO)
+    ordens_aguardando = OrdemServico.objects.filter(status=OrdemServico.STATUS_AGUARDANDO_APROVACAO)
+    ordens_finalizadas = OrdemServico.objects.filter(status=OrdemServico.STATUS_FINALIZADA)
+
+    context = {
+        'ordens_abertas': ordens_abertas,
+        'ordens_andamento': ordens_andamento,
+        'ordens_aguardando': ordens_aguardando,
+        'ordens_finalizadas': ordens_finalizadas,
+    }
+    return render(request, 'site_principal/admin_dashboard.html', context)
 
 
 
 @login_required(login_url=reverse_lazy('login'))
 @admin_required
 def admin_orcamento_create(request):
-    """Permite ao administrador criar um novo orçamento (OrdemServico).
-
-    O status é definido como 'em_andamento' automaticamente.
-    """
     if request.method == 'POST':
         form = OrdemServicoForm(request.POST)
         if form.is_valid():
@@ -123,19 +115,15 @@ def admin_orcamento_create(request):
 
 
 def register(request):
-    """Simple registration view for non-admin users using Django's UserCreationForm.
-
-    After successful registration the user is redirected to the login page with a success message.
-    """
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            # ensure new users are not staff/superuser
+
             user.is_staff = False
             user.is_superuser = False
             user.save()
-            # create Cliente profile for this user
+
             Cliente.objects.get_or_create(user=user)
             messages.success(request, 'Cadastro realizado com sucesso. Faça login.')
             return redirect(reverse('login'))
@@ -147,11 +135,9 @@ def register(request):
 @login_required(login_url=reverse_lazy('login'))
 @non_admin_required
 def dashboard(request):
-    """Dashboard simples listando veículos do cliente."""
-    # ensure cliente exists
     cliente, _ = Cliente.objects.get_or_create(user=request.user)
     veiculos = cliente.veiculos.all()
-    # ordens de serviço relacionadas aos veículos deste cliente
+
     ordens = OrdemServico.objects.filter(veiculo__cliente=cliente)
     ordens_aguardando = ordens.filter(status=OrdemServico.STATUS_AGUARDANDO_APROVACAO)
     ordens_outros = ordens.exclude(status=OrdemServico.STATUS_AGUARDANDO_APROVACAO)
@@ -228,13 +214,13 @@ def orcamentos_outros(request):
 def aprovar_orcamento(request, pk):
     cliente, _ = Cliente.objects.get_or_create(user=request.user)
     ordem = get_object_or_404(OrdemServico, pk=pk, veiculo__cliente=cliente)
-    # só permitir aprovar se estiver aguardando aprovação
+
     if ordem.status == OrdemServico.STATUS_AGUARDANDO_APROVACAO:
         ordem.status = OrdemServico.STATUS_EM_ANDAMENTO
         ordem.save()
         messages.success(request, f'Orçamento #{ordem.id} aprovado com sucesso.')
     else:
         messages.info(request, 'Ordem não está aguardando aprovação.')
-    # redireciona de volta à página anterior ou dashboard
+
     next_url = request.META.get('HTTP_REFERER') or reverse('dashboard')
     return redirect(next_url)
