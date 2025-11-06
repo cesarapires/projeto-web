@@ -5,7 +5,9 @@
 {% block content %}
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Meus veículos</h2>
-    <a href="{% url 'veiculo_create' %}" class="btn btn-primary">Novo veículo</a>
+    <div>
+      <a href="{% url 'veiculo_create' %}" class="btn btn-primary">Novo veículo</a>
+    </div>
   </div>
 
   {% if veiculos %}
@@ -26,4 +28,93 @@
   {% else %}
     <p class="text-muted">Você ainda não cadastrou veículos.</p>
   {% endif %}
+  
+  <!-- Orçamentos aguardando aprovação -->
+  <div class="mt-4">
+    <h3>Orçamentos aguardando aprovação</h3>
+    {% if ordens_aguardando %}
+      <div class="list-group">
+        {% for o in ordens_aguardando %}
+          <div class="list-group-item d-flex justify-content-between align-items-start">
+            <div>
+              <strong>OS #{{ o.id }}</strong> — Veículo: {{ o.veiculo.placa }} <br>
+              <small class="text-muted">Aberta em: {{ o.data_abertura }} • Valor: R$ {{ o.valor_total }}</small>
+            </div>
+            <div class="text-end">
+              <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#orcamentoModal"
+                data-id="{{ o.id }}" data-veiculo="{{ o.veiculo.placa }}" data-valor="{{ o.valor_total }}" data-km="{{ o.km_atendimento }}" data-obs="{{ o.observacoes }}">Ver detalhes</button>
+              <form method="post" action="{% url 'aprovar_orcamento' o.pk %}" style="display:inline-block;">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-success" type="submit">Aprovar</button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted">Nenhum orçamento aguardando aprovação.</p>
+    {% endif %}
+  </div>
+
+  <!-- Outros orçamentos -->
+  <div class="mt-4">
+    <h3>Outros orçamentos</h3>
+    {% if ordens_outros %}
+      <div class="list-group">
+        {% for o in ordens_outros %}
+          <div class="list-group-item d-flex justify-content-between align-items-start">
+            <div>
+              <strong>OS #{{ o.id }}</strong> — Veículo: {{ o.veiculo.placa }} <br>
+              <small class="text-muted">Aberta em: {{ o.data_abertura }} • Status: {{ o.get_status_display }} • Valor: R$ {{ o.valor_total }}</small>
+            </div>
+            <div class="text-end">
+              <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#orcamentoModal"
+                data-id="{{ o.id }}" data-veiculo="{{ o.veiculo.placa }}" data-valor="{{ o.valor_total }}" data-km="{{ o.km_atendimento }}" data-obs="{{ o.observacoes }}">Ver detalhes</button>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted">Nenhum outro orçamento.</p>
+    {% endif %}
+  </div>
+
+  <!-- Modal para visualizar orçamento -->
+  <div class="modal fade" id="orcamentoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Detalhes do Orçamento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p><strong>OS #</strong> <span id="m-id"></span></p>
+          <p><strong>Veículo:</strong> <span id="m-veiculo"></span></p>
+          <p><strong>Valor total:</strong> R$ <span id="m-valor"></span></p>
+          <p><strong>KM atendimento:</strong> <span id="m-km"></span></p>
+          <p><strong>Observações:</strong></p>
+          <div id="m-obs" class="small text-muted"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% block extra_js %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      var modal = document.getElementById('orcamentoModal');
+      modal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        document.getElementById('m-id').textContent = button.getAttribute('data-id') || '';
+        document.getElementById('m-veiculo').textContent = button.getAttribute('data-veiculo') || '';
+        document.getElementById('m-valor').textContent = button.getAttribute('data-valor') || '';
+        document.getElementById('m-km').textContent = button.getAttribute('data-km') || '-';
+        document.getElementById('m-obs').textContent = button.getAttribute('data-obs') || '-';
+      });
+    });
+  </script>
+{% endblock %}
 {% endblock %}

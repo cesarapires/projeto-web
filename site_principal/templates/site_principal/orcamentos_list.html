@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>{{ title }}</h2>
+    <div>
+      <a href="{% url 'orcamentos_aguardando' %}" class="btn btn-outline-primary btn-sm">Aguardando aprovação</a>
+      <a href="{% url 'orcamentos_outros' %}" class="btn btn-outline-secondary btn-sm">Outros</a>
+    </div>
+  </div>
+
+  {% if ordens %}
+    <div class="list-group">
+      {% for o in ordens %}
+        <div class="list-group-item">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <strong>OS #{{ o.id }}</strong> — Veículo: {{ o.veiculo.placa }} <br>
+              <small class="text-muted">Aberta em: {{ o.data_abertura }} • Status: {{ o.get_status_display }}</small>
+              {% if o.km_atendimento %}<div class="small">KM: {{ o.km_atendimento }}</div>{% endif %}
+              {% if o.observacoes %}<div class="small mt-1">{{ o.observacoes }}</div>{% endif %}
+              <div class="small mt-1">Valor total: R$ {{ o.valor_total }}</div>
+            </div>
+            <div class="text-end">
+              {% if show_approve %}
+                <form method="post" action="{% url 'aprovar_orcamento' o.pk %}">
+                  {% csrf_token %}
+                  <button class="btn btn-sm btn-success" type="submit">Aprovar orçamento</button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted">Nenhum orçamento encontrado.</p>
+  {% endif %}
+{% endblock %}
