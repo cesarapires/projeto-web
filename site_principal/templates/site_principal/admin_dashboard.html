@@ -140,10 +140,6 @@
                       <td>{{ o.data_abertura|date:"SHORT_DATETIME_FORMAT" }}</td>
                       <td>
                         <button class="btn btn-sm btn-outline-secondary btn-view" data-url="{% url 'admin_orcamento_detail' o.id %}">Visualizar</button>
-                        <form method="post" action="{% url 'aprovar_orcamento' o.id %}" style="display:inline;">
-                          {% csrf_token %}
-                          <button type="submit" class="btn btn-sm btn-success ms-1">Aprovar</button>
-                        </form>
                         <a href="{% url 'admin_orcamento_edit' o.id %}" class="btn btn-sm btn-outline-primary ms-1">Editar</a>
                         <a href="{% url 'admin_orcamento_delete' o.id %}" class="btn btn-sm btn-outline-danger ms-1">Deletar</a>
                       </td>
