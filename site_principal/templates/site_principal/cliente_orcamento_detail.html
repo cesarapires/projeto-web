@@ -21,4 +21,20 @@
       <div class="list-group-item text-muted">Nenhum serviço cadastrado para esta ordem.</div>
     {% endfor %}
   </div>
+  
+  <hr />
+  <h6>Peças utilizadas</h6>
+  <div class="list-group">
+    {% for uso in ordem.pecas_utilizadas.all %}
+      <div class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <div class="fw-semibold">{{ uso.peca.nome }} x{{ uso.quantidade }}</div>
+          <div class="small text-muted">Unidade: R$ {{ uso.valor_unitario }} • Total: R$ {{ uso.valor_total }}</div>
+        </div>
+        <div class="text-end fw-bold">R$ {{ uso.valor_total }}</div>
+      </div>
+    {% empty %}
+      <div class="list-group-item text-muted">Nenhuma peça utilizada cadastrada.</div>
+    {% endfor %}
+  </div>
 </div>

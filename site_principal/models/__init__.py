@@ -5,3 +5,4 @@ from .cliente import Cliente
 from .ordem_servico import OrdemServico
 from .peca import Peca
 from .servico_executado import ServicoExecutado
+from .peca_utilizada import PecaUtilizada

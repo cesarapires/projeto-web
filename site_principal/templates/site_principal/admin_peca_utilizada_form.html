@@ -1,0 +1,29 @@
+{% extends 'site_principal/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>{% if create %}Adicionar peça{% else %}Editar peça{% endif %} — Ordem #{{ ordem.id }}</h2>
+  <form method="post" class="form-compact">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="mb-3">
+      {{ form.peca.label_tag }}
+      {{ form.peca }}
+      {{ form.peca.errors }}
+    </div>
+    <div class="mb-3">
+      {{ form.quantidade.label_tag }}
+      {{ form.quantidade }}
+      {{ form.quantidade.errors }}
+    </div>
+    <div class="mb-3">
+      {{ form.valor_unitario.label_tag }}
+      {{ form.valor_unitario }}
+      {{ form.valor_unitario.errors }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <a href="{{ request.META.HTTP_REFERER|default:request.path }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

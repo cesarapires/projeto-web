@@ -28,4 +28,8 @@ urlpatterns = [
     path('dashboard/admin/orcamentos/<int:ordem_pk>/servicos/novo/', views.servico_create, name='servico_create'),
     path('dashboard/admin/orcamentos/<int:ordem_pk>/servicos/<int:pk>/editar/', views.servico_edit, name='servico_edit'),
     path('dashboard/admin/orcamentos/<int:ordem_pk>/servicos/<int:pk>/excluir/', views.servico_delete, name='servico_delete'),
+    # Peças usadas em uma ordem (admin)
+    path('dashboard/admin/orcamentos/<int:ordem_pk>/pecas/novo/', views.peca_utilizada_create, name='peca_utilizada_create'),
+    path('dashboard/admin/orcamentos/<int:ordem_pk>/pecas/<int:pk>/editar/', views.peca_utilizada_edit, name='peca_utilizada_edit'),
+    path('dashboard/admin/orcamentos/<int:ordem_pk>/pecas/<int:pk>/excluir/', views.peca_utilizada_delete, name='peca_utilizada_delete'),
 ]

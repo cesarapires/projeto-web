@@ -1,0 +1,13 @@
+{% extends 'site_principal/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Remover peça — Ordem #{{ ordem.id }}</h2>
+  <p>Tem certeza que deseja remover <strong>{{ peca_uso.peca.nome }}</strong> (x{{ peca_uso.quantidade }}) desta ordem?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Sim, remover</button>
+    <a href="{{ request.META.HTTP_REFERER|default:request.path }}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

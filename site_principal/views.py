@@ -12,11 +12,13 @@ from .forms import VeiculoForm
 from .forms import OrdemServicoForm, OrdemServicoCreateForm
 from .forms import PecaForm
 from .forms import ServicoExecutadoForm
+from .forms import PecaUtilizadaForm
 from .models.veiculo import Veiculo
 from .models.cliente import Cliente
 from .models.ordem_servico import OrdemServico
 from .models.peca import Peca
 from .models.servico_executado import ServicoExecutado
+from .models.peca_utilizada import PecaUtilizada
 from django.db import transaction
 from decimal import Decimal
 from django.views.decorators.http import require_POST
@@ -224,6 +226,80 @@ def servico_create(request, ordem_pk):
     else:
         form = ServicoExecutadoForm()
     return render(request, 'site_principal/admin_servico_form.html', {'form': form, 'ordem': ordem, 'create': True})
+
+
+@login_required(login_url=reverse_lazy('login'))
+@admin_required
+def peca_utilizada_create(request, ordem_pk):
+    ordem = get_object_or_404(OrdemServico, pk=ordem_pk)
+    if request.method == 'POST':
+        form = PecaUtilizadaForm(request.POST)
+        if form.is_valid():
+            peca_uso = form.save(commit=False)
+            peca_uso.ordem_servico = ordem
+            # if valor_unitario not provided, default from peca
+            if not peca_uso.valor_unitario or peca_uso.valor_unitario == Decimal('0.00'):
+                peca_uso.valor_unitario = peca_uso.peca.preco_unitario
+            with transaction.atomic():
+                peca_uso.save()
+                ordem.valor_total = (ordem.valor_total or Decimal('0.00')) + (peca_uso.valor_total or Decimal('0.00'))
+                ordem.save()
+            messages.success(request, 'Peça adicionada com sucesso à ordem.')
+            from django.urls import reverse
+            dashboard_url = reverse('admin_dashboard')
+            return redirect(f"{dashboard_url}?open_order={ordem.pk}")
+    else:
+        form = PecaUtilizadaForm()
+    return render(request, 'site_principal/admin_peca_utilizada_form.html', {'form': form, 'ordem': ordem, 'create': True})
+
+
+@login_required(login_url=reverse_lazy('login'))
+@admin_required
+def peca_utilizada_edit(request, ordem_pk, pk):
+    ordem = get_object_or_404(OrdemServico, pk=ordem_pk)
+    peca_uso = get_object_or_404(PecaUtilizada, pk=pk, ordem_servico=ordem)
+    if request.method == 'POST':
+        form = PecaUtilizadaForm(request.POST, instance=peca_uso)
+        if form.is_valid():
+            old_total = peca_uso.valor_total or Decimal('0.00')
+            peca_new = form.save(commit=False)
+            # ensure valor_unitario fallback
+            if not peca_new.valor_unitario or peca_new.valor_unitario == Decimal('0.00'):
+                peca_new.valor_unitario = peca_new.peca.preco_unitario
+            # compute new total via model.save
+            with transaction.atomic():
+                peca_new.save()
+                delta = (peca_new.valor_total or Decimal('0.00')) - old_total
+                ordem.valor_total = (ordem.valor_total or Decimal('0.00')) + delta
+                if ordem.valor_total < Decimal('0.00'):
+                    ordem.valor_total = Decimal('0.00')
+                ordem.save()
+            messages.success(request, 'Peça atualizada com sucesso.')
+            from django.urls import reverse
+            dashboard_url = reverse('admin_dashboard')
+            return redirect(f"{dashboard_url}?open_order={ordem.pk}")
+    else:
+        form = PecaUtilizadaForm(instance=peca_uso)
+    return render(request, 'site_principal/admin_peca_utilizada_form.html', {'form': form, 'ordem': ordem, 'create': False, 'peca_uso': peca_uso})
+
+
+@login_required(login_url=reverse_lazy('login'))
+@admin_required
+def peca_utilizada_delete(request, ordem_pk, pk):
+    ordem = get_object_or_404(OrdemServico, pk=ordem_pk)
+    peca_uso = get_object_or_404(PecaUtilizada, pk=pk, ordem_servico=ordem)
+    if request.method == 'POST':
+        with transaction.atomic():
+            ordem.valor_total = (ordem.valor_total or Decimal('0.00')) - (peca_uso.valor_total or Decimal('0.00'))
+            if ordem.valor_total < Decimal('0.00'):
+                ordem.valor_total = Decimal('0.00')
+            ordem.save()
+            peca_uso.delete()
+        messages.success(request, 'Peça removida com sucesso.')
+        from django.urls import reverse
+        dashboard_url = reverse('admin_dashboard')
+        return redirect(f"{dashboard_url}?open_order={ordem.pk}")
+    return render(request, 'site_principal/admin_peca_utilizada_confirm_delete.html', {'peca_uso': peca_uso, 'ordem': ordem})
 
 
 @login_required(login_url=reverse_lazy('login'))

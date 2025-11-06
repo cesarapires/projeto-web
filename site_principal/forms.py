@@ -4,6 +4,7 @@ from .models.veiculo import Veiculo
 from .models.ordem_servico import OrdemServico
 from .models.peca import Peca
 from .models.servico_executado import ServicoExecutado
+from .models.peca_utilizada import PecaUtilizada
 
 
 class VeiculoForm(forms.ModelForm):
@@ -73,4 +74,15 @@ class ServicoExecutadoForm(forms.ModelForm):
             'valor': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': '0.00'}),
             'duracao_estimada_horas': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': 'Horas estimadas'}),
             'data_execucao': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+        }
+
+
+class PecaUtilizadaForm(forms.ModelForm):
+    class Meta:
+        model = PecaUtilizada
+        fields = ['peca', 'quantidade', 'valor_unitario']
+        widgets = {
+            'peca': forms.Select(attrs={'class': 'form-select'}),
+            'quantidade': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Quantidade'}),
+            'valor_unitario': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': 'Valor unitário'}),
         }

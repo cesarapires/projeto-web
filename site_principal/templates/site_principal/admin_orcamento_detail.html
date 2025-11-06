@@ -66,6 +66,28 @@
           <div class="list-group-item">Nenhum serviço cadastrado para esta ordem.</div>
         {% endfor %}
       </div>
+      
+      <hr />
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0">Peças utilizadas</h6>
+        <a href="{% url 'peca_utilizada_create' ordem.id %}" class="btn btn-sm btn-success">Adicionar peça</a>
+      </div>
+      <div class="list-group peças-list">
+        {% for uso in ordem.pecas_utilizadas.all %}
+          <div class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              <div class="fw-semibold">{{ uso.peca.nome }} x{{ uso.quantidade }}</div>
+              <div class="text-muted small">Unidade: R$ {{ uso.valor_unitario }} • Total: R$ {{ uso.valor_total }}</div>
+            </div>
+            <div>
+              <a href="{% url 'peca_utilizada_edit' ordem.id uso.id %}" class="btn btn-sm btn-outline-primary me-1">Editar</a>
+              <a href="{% url 'peca_utilizada_delete' ordem.id uso.id %}" class="btn btn-sm btn-outline-danger">Remover</a>
+            </div>
+          </div>
+        {% empty %}
+          <div class="list-group-item text-muted">Nenhuma peça utilizada cadastrada.</div>
+        {% endfor %}
+      </div>
     </div>
   </div>
 </div>
