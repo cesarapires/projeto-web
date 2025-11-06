@@ -18,4 +18,9 @@ urlpatterns = [
     path('dashboard/admin/orcamentos/<int:pk>/', views.admin_orcamento_detail, name='admin_orcamento_detail'),
     path('dashboard/admin/orcamentos/<int:pk>/editar/', views.admin_orcamento_edit, name='admin_orcamento_edit'),
     path('dashboard/admin/orcamentos/<int:pk>/excluir/', views.admin_orcamento_delete, name='admin_orcamento_delete'),
+    # Peças (admin)
+    path('dashboard/admin/pecas/', views.peca_list, name='peca_list'),
+    path('dashboard/admin/pecas/novo/', views.peca_create, name='peca_create'),
+    path('dashboard/admin/pecas/<int:pk>/editar/', views.peca_edit, name='peca_edit'),
+    path('dashboard/admin/pecas/<int:pk>/excluir/', views.peca_delete, name='peca_delete'),
 ]

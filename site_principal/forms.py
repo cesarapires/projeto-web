@@ -2,6 +2,7 @@ from django import forms
 
 from .models.veiculo import Veiculo
 from .models.ordem_servico import OrdemServico
+from .models.peca import Peca
 
 
 class VeiculoForm(forms.ModelForm):
@@ -45,4 +46,17 @@ class OrdemServicoCreateForm(forms.ModelForm):
             'km_atendimento': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Quilometragem atendida (opcional)'}),
             'observacoes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Observações do orçamento'}),
             'valor_total': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': 'Valor total'}),
+        }
+
+
+class PecaForm(forms.ModelForm):
+    class Meta:
+        model = Peca
+        fields = ['nome', 'codigo', 'fabricante', 'preco_unitario', 'estoque_atual']
+        widgets = {
+            'nome': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome da peça'}),
+            'codigo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Código interno or OEM'}),
+            'fabricante': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Fabricante'}),
+            'preco_unitario': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': '0.00'}),
+            'estoque_atual': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Quantidade disponível'}),
         }

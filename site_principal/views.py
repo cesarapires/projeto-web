@@ -10,9 +10,11 @@ from functools import wraps
 
 from .forms import VeiculoForm
 from .forms import OrdemServicoForm, OrdemServicoCreateForm
+from .forms import PecaForm
 from .models.veiculo import Veiculo
 from .models.cliente import Cliente
 from .models.ordem_servico import OrdemServico
+from .models.peca import Peca
 from django.views.decorators.http import require_POST
 from .models.ordem_servico import OrdemServico
 from django.views.decorators.http import require_POST
@@ -150,6 +152,48 @@ def admin_orcamento_delete(request, pk):
         return redirect('admin_dashboard')
     return render(request, 'site_principal/admin_orcamento_confirm_delete.html', {'ordem': ordem})
 
+@login_required(login_url=reverse_lazy('login'))
+@admin_required
+def peca_list(request):
+    pecas = Peca.objects.all()
+    return render(request, 'site_principal/admin_peca_list.html', {'pecas': pecas})
+
+@login_required(login_url=reverse_lazy('login'))
+@admin_required
+def peca_create(request):
+    if request.method == 'POST':
+        form = PecaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Peça criada com sucesso.')
+            return redirect('peca_list')
+    else:
+        form = PecaForm()
+    return render(request, 'site_principal/admin_peca_form.html', {'form': form, 'create': True})
+
+@login_required(login_url=reverse_lazy('login'))
+@admin_required
+def peca_edit(request, pk):
+    peca = get_object_or_404(Peca, pk=pk)
+    if request.method == 'POST':
+        form = PecaForm(request.POST, instance=peca)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Peça atualizada com sucesso.')
+            return redirect('peca_list')
+    else:
+        form = PecaForm(instance=peca)
+    return render(request, 'site_principal/admin_peca_form.html', {'form': form, 'create': False, 'peca': peca})
+
+@login_required(login_url=reverse_lazy('login'))
+@admin_required
+def peca_delete(request, pk):
+    peca = get_object_or_404(Peca, pk=pk)
+    if request.method == 'POST':
+        peca.delete()
+        messages.success(request, 'Peça excluída com sucesso.')
+        return redirect('peca_list')
+    return render(request, 'site_principal/admin_peca_confirm_delete.html', {'peca': peca})
 
 def register(request):
     if request.method == 'POST':
